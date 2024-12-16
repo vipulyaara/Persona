@@ -1,10 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace = "app.persona.theme"
+    namespace = "app.persona.media.detection"
     compileSdk = 34
 
     defaultConfig {

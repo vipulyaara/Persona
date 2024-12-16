@@ -27,3 +27,4 @@ rootProject.name = "Persona"
 include(":app")
 include(":ui:theme")
 include(":ui:media:detection")
+include(":feature:face-detection")

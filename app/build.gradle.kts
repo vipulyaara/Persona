@@ -33,6 +33,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    composeCompiler {
+        enableStrongSkippingMode = true
+        includeSourceInformation = true
+    }
+
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -40,9 +45,17 @@ android {
     buildFeatures {
         compose = true
     }
+
+    configurations {
+        all {
+            exclude(group = "com.google.mediapipe", module = "solution-core")
+        }
+    }
 }
 
 dependencies {
+    implementation(projects.feature.faceDetection)
+    implementation(projects.ui.media.detection)
     implementation(projects.ui.theme)
 
     implementation(libs.androidx.activity.compose)
