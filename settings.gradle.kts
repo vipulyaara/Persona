@@ -20,5 +20,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Persona"
+
 include(":app")
- 
+include(":ui:theme")
