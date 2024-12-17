@@ -31,6 +31,7 @@ android {
 
 dependencies {
     implementation(projects.ui.media.detection)
+    implementation(projects.ui.components)
     implementation(projects.ui.theme)
 
     implementation(platform(libs.compose.bom))
