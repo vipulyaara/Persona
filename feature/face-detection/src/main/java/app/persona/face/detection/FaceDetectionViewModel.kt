@@ -1,145 +1,151 @@
 package app.persona.face.detection
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ColorSpace
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore.Images.Media
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.persona.face.detection.permissions.PhotoPermissionManager
-import app.persona.media.detection.FaceDetectorHelper
-import com.google.mediapipe.tasks.vision.core.RunningMode
-import kotlinx.coroutines.Dispatchers
+import app.persona.data.detection.ProcessedImageWithBitmap
+import app.persona.data.image.BitmapLoader
+import app.persona.data.image.ImageBatch
+import app.persona.data.image.ImageRepository
+import app.persona.domain.DetectFacesUseCase
+import app.persona.face.detection.GalleryUiState.Error
+import app.persona.face.detection.GalleryUiState.Initial
+import app.persona.face.detection.GalleryUiState.Loading
+import app.persona.face.detection.GalleryUiState.Success
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class FaceDetectionViewModel(private val application: Context) : ViewModel() {
-    private val faceDetector = FaceDetectorHelper(
-        context = application,
-        runningMode = RunningMode.IMAGE
-    )
+/**
+ * ViewModel responsible for managing face detection operations and UI state.
+ * Handles image loading, face detection processing, and batch processing of gallery images.
+ * Maintains state of the scanning process and provides updates through [GalleryUiState].
+ */
+@HiltViewModel
+class FaceDetectionViewModel @Inject constructor(
+    private val imageRepository: ImageRepository,
+    private val bitmapLoader: BitmapLoader,
+    private val detectFacesUseCase: DetectFacesUseCase
+) : ViewModel() {
+    private val _uiState = MutableStateFlow<GalleryUiState>(Initial)
+    val uiState: StateFlow<GalleryUiState> = _uiState.asStateFlow()
 
-    private val _processedImages = MutableStateFlow<List<ProcessedImage>>(emptyList())
-    val processedImages: StateFlow<List<ProcessedImage>> = _processedImages
+    private var currentIndex = 0
+    private var isProcessing = false
 
-    private val _isScanning = MutableStateFlow(false)
-    val isScanning: StateFlow<Boolean> = _isScanning
+    /**
+     * Initiates or continues the image scanning process.
+     * @param reset If true, resets the scanning progress and starts from the beginning
+     * @param onlyLatestSelection If true, only processes the most recently selected images
+     */
+    fun scanImages(reset: Boolean = false, onlyLatestSelection: Boolean = false) {
+        if (isProcessing) return
+        if (reset) resetState()
 
-    private val _hasMoreImages = MutableStateFlow(true)
-    val hasMoreImages: StateFlow<Boolean> = _hasMoreImages
-
-    private var currentCursor: Int = 0
-    private val batchSize = 20
-
-    fun scanImages(
-        reset: Boolean = false,
-        onlyLatestSelection: Boolean = false
-    ) {
         viewModelScope.launch {
-            _scan(reset, onlyLatestSelection)
-        }
-    }
-
-    private suspend fun _scan(
-        reset: Boolean = false,
-        onlyLatestSelection: Boolean = false
-    ) {
-        if (_isScanning.value) return
-
-        if (reset) {
-            _processedImages.value = emptyList()
-            currentCursor = 0
-            _hasMoreImages.value = true
-        }
-
-        _isScanning.value = true
-
-        withContext(Dispatchers.IO) {
-            val projection = arrayOf(
-                Media._ID,
-                Media.DISPLAY_NAME
-            )
-
-            // Pass the onlyLatestSelection parameter
-            val queryArgs = PhotoPermissionManager.createQueryArgs(onlyLatestSelection = onlyLatestSelection)
-
-            application.contentResolver.query(
-                Media.EXTERNAL_CONTENT_URI,
-                projection,
-                queryArgs,
-                null
-            )?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(Media._ID)
-                val nameColumn = cursor.getColumnIndexOrThrow(Media.DISPLAY_NAME)
-
-                // Move to the current cursor position
-                if (currentCursor > 0) {
-                    cursor.moveToPosition(currentCursor - 1)
-                }
-
-                var processedInBatch = 0
-                while (cursor.moveToNext() && processedInBatch < batchSize) {
-                    val id = cursor.getLong(idColumn)
-                    val fileName = cursor.getString(nameColumn)
-                    val contentUri = Uri.withAppendedPath(
-                        Media.EXTERNAL_CONTENT_URI,
-                        id.toString()
-                    )
-
-                    println("Processing image ${currentCursor + 1}: $fileName")
-
-                    try {
-                        val bitmap = loadBitmap(contentUri)
-                        val result = faceDetector.detectImage(bitmap)
-                        val detections = result?.results?.flatMap { it.detections() }
-                        val faceCount = detections?.size ?: 0
-
-                        if (faceCount > 0) {
-                            println("Found $faceCount faces in $fileName")
-                            _processedImages.value += ProcessedImage(
-                                uri = contentUri,
-                                faceCount = faceCount,
-                                detections = detections
-                            )
-                        } else {
-                            println("No faces found in $fileName")
-                        }
-                    } catch (e: Exception) {
-                        println("Failed to process $fileName: ${e.message}")
-                    }
-                    currentCursor++
-                    processedInBatch++
-                }
-
-                // Check if we have more images
-                _hasMoreImages.value = !cursor.isLast
+            try {
+                startProcessing()
+                collectAndProcessImages(onlyLatestSelection)
+            } catch (e: Exception) {
+                handleError(e)
+            } finally {
+                isProcessing = false
             }
         }
-
-        println("Finished scanning batch. Total images with faces: ${_processedImages.value.size}")
-        _isScanning.value = false
     }
 
-    private fun loadBitmap(uri: Uri): Bitmap {
-        return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ImageDecoder.createSource(application.contentResolver, uri)
-                .let { source ->
-                    ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
-                        decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                        decoder.setTargetColorSpace(ColorSpace.get(ColorSpace.Named.SRGB))
+    private fun resetState() {
+        currentIndex = 0
+        _uiState.value = Initial
+    }
+
+    private fun startProcessing() {
+        isProcessing = true
+        if (_uiState.value is Initial) {
+            _uiState.value = Loading
+        }
+    }
+
+    /**
+     * Collects and processes images in batches to prevent overwhelming the system.
+     * Only keeps images where faces are detected.
+     */
+    private suspend fun collectAndProcessImages(onlyLatestSelection: Boolean) {
+        imageRepository.getImagesStream(
+            startIndex = currentIndex,
+            onlyLatestSelection = onlyLatestSelection
+        )
+            .catch { error -> handleError(error) }
+            .collect { batch -> processImageBatch(batch) }
+    }
+
+    /**
+     * Processes a batch of images, detecting faces in each image.
+     * Updates UI state with images that contain faces.
+     */
+    private suspend fun processImageBatch(batch: ImageBatch) {
+        batch.images.forEach { imageData ->
+            bitmapLoader.loadBitmap(imageData.uri).onSuccess { bitmap ->
+                detectFacesUseCase(bitmap).takeIf { it.faceCount > 0 }
+                    ?.let { detectionResult ->
+                        val processedImage = ProcessedImageWithBitmap(
+                            uri = imageData.uri,
+                            bitmap = bitmap,
+                            faceCount = detectionResult.faceCount,
+                            detections = detectionResult.detections,
+                            aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
+                        )
+                        updateUiState(processedImage, batch.hasMore)
                     }
-                }
-        } else {
-            @Suppress("DEPRECATION")
-            Media.getBitmap(
-                application.contentResolver,
-                uri
-            )
-        }).copy(Bitmap.Config.ARGB_8888, true)
+            }
+        }
+        currentIndex = batch.nextIndex
     }
+
+    private fun updateUiState(newImage: ProcessedImageWithBitmap, hasMore: Boolean) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is Success -> currentState.copy(
+                    images = currentState.images + newImage,
+                    hasMore = hasMore
+                )
+
+                else -> Success(
+                    images = listOf(newImage),
+                    hasMore = hasMore
+                )
+            }
+        }
+    }
+
+    private fun handleError(error: Throwable) {
+        _uiState.value = Error(error)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        detectFacesUseCase.cleanup()
+    }
+}
+
+/**
+ * Represents the different states of the gallery UI.
+ * - [Initial]: Initial state before scanning starts
+ * - [Loading]: Scanning is in progress
+ * - [Success]: Images with faces have been found
+ * - [Error]: An error occurred during scanning
+ */
+sealed interface GalleryUiState {
+    data object Initial : GalleryUiState
+    data object Loading : GalleryUiState
+    data class Success(
+        val images: List<ProcessedImageWithBitmap>,
+        val hasMore: Boolean
+    ) : GalleryUiState
+
+    data class Error(val error: Throwable) : GalleryUiState
 }

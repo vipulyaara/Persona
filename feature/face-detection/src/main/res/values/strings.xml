@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gallery_tap_to_start">Tap to start scanning photos</string>
+    <string name="gallery_start_scanning">Start Scanning</string>
+    <string name="gallery_scanning_photos">Scanning device for photos with faces…</string>
+    <string name="gallery_no_photos_found">No photos with faces found yet…</string>
+</resources>

@@ -33,7 +33,7 @@ fun LimitedAccessHeader(
     ) {
         MessageBox(text = "Limited photo access granted. You can select more photos anytime.")
         Spacer(modifier = Modifier.height(Dimens.Spacing08))
-        
+
         Button(
             onClick = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

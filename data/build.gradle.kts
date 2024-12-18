@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -19,5 +20,16 @@ android {
 }
 
 dependencies {
+    implementation(libs.hilt.android)
 
+    implementation(libs.mediapipe.face.detection) {
+        exclude(group = "com.google.mediapipe", module = "solution-core")
+    }
+    implementation(libs.mediapipe.tasks.core) {
+        exclude(group = "com.google.mediapipe", module = "solution-core")
+    }
+    implementation(libs.mediapipe.tasks.vision) {
+        exclude(group = "com.google.mediapipe", module = "solution-core")
+        exclude(group = "com.google.mediapipe", module = "tasks-core")
+    }
 }

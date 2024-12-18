@@ -1,4 +1,4 @@
-package app.persona.face.detection.permissions
+package app.persona.data.permissions
 
 import android.Manifest
 import android.content.ContentResolver
@@ -18,6 +18,7 @@ object PhotoPermissionManager {
                     Manifest.permission.READ_MEDIA_IMAGES
                 ) == PermissionChecker.PERMISSION_GRANTED
             }
+
             else -> {
                 ContextCompat.checkSelfPermission(
                     context,
@@ -53,12 +54,4 @@ object PhotoPermissionManager {
             null
         }
     }
-
-//    private fun getExtensionVersion(sdkVersion: Int): Int {
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-//            Build.VERSION.EXTENSION_INT
-//        } else {
-//            0
-//        }
-//    }
-} 
+}

@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    id("kotlin-kapt")
 }
 
 android {
@@ -30,8 +32,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.ui.media.detection)
     implementation(projects.ui.components)
+    implementation(projects.data)
+    implementation(projects.domain)
     implementation(projects.ui.theme)
 
     implementation(platform(libs.compose.bom))
@@ -45,14 +48,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel)
 
-    implementation(libs.mediapipe.face.detection) {
-        exclude(group = "com.google.mediapipe", module = "solution-core")
-    }
-    implementation(libs.mediapipe.tasks.core) {
-        exclude(group = "com.google.mediapipe", module = "solution-core")
-    }
-    implementation(libs.mediapipe.tasks.vision) {
-        exclude(group = "com.google.mediapipe", module = "solution-core")
-        exclude(group = "com.google.mediapipe", module = "tasks-core")
-    }
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.compose)
+
+    kapt(libs.hilt.compiler)
+
+
 }

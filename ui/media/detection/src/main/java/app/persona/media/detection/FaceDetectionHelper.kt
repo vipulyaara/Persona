@@ -30,16 +30,27 @@ class FaceDetectorHelper(
         setupFaceDetector()
     }
 
-    fun clearFaceDetector() {
-        faceDetector?.close()
-        faceDetector = null
+    // Ensure proper cleanup of resources
+    fun close() {
+        try {
+            faceDetector?.close()
+            faceDetector = null
+            faceDetectorListener = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error closing FaceDetector: ${e.message}")
+        }
     }
 
-    // Initialize the face detector using current settings on the
-    // thread that is using it. CPU can be used with detectors
-    // that are created on the main thread and used on a background thread, but
-    // the GPU delegate needs to be used on the thread that initialized the detector
+    // Modify clearFaceDetector to use close()
+    fun clearFaceDetector() {
+        close()
+    }
+
+    // Add cleanup in setupFaceDetector to prevent memory leaks
     fun setupFaceDetector() {
+        // Clear existing detector before creating a new one
+        clearFaceDetector()
+
         // Set general detection options, including number of used threads
         val baseOptionsBuilder = BaseOptions.builder()
 
