@@ -1,4 +1,4 @@
-package app.persona.face.detection
+package app.persona.face.detection.gallery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import app.persona.data.detection.ProcessedImageWithBitmap
 import app.persona.theme.Dimens
 
@@ -39,7 +38,7 @@ fun GalleryGrid(
         verticalItemSpacing = Dimens.Spacing08,
     ) {
         items(images) { processedImage ->
-            ImageWithFaceCount(
+            ImageWithFace(
                 bitmap = processedImage.bitmap,
                 faceCount = processedImage.faceCount,
                 aspectRatio = processedImage.aspectRatio,
@@ -48,15 +47,17 @@ fun GalleryGrid(
         }
 
         if (hasMore) {
-            items(6) {
+            items(PlaceholderCount) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(Dimens.Spacing12))
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                 )
             }
         }
     }
-} 
+}
+
+const val PlaceholderCount = 6

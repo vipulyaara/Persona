@@ -4,4 +4,5 @@
     <string name="gallery_start_scanning">Start Scanning</string>
     <string name="gallery_scanning_photos">Scanning device for photos with faces…</string>
     <string name="gallery_no_photos_found">No photos with faces found yet…</string>
+    <string name="retry">Retry</string>
 </resources>

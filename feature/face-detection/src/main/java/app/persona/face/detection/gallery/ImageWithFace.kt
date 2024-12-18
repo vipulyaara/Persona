@@ -1,4 +1,4 @@
-package app.persona.face.detection
+package app.persona.face.detection.gallery
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import app.persona.data.detection.FaceDetection
 
 @Composable
-fun ImageWithFaceCount(
+fun ImageWithFace(
     bitmap: Bitmap,
     faceCount: Int,
     aspectRatio: Float,

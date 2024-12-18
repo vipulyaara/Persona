@@ -1,4 +1,4 @@
-package app.persona.face.detection
+package app.persona.face.detection.gallery
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.persona.components.MessageBox
 import app.persona.components.MessageButton
+import app.persona.face.detection.FaceDetectionViewModel
+import app.persona.face.detection.GalleryUiState
 import app.persona.face.detection.permissions.PhotoPermissionHandler
 import app.persona.feature.face.detection.R
 import app.persona.theme.Dimens
@@ -30,10 +32,10 @@ fun Gallery(
             if (hasAccess) viewModel.scanImages(reset = true)
         },
         onPermissionGranted = { showLimitedAccess ->
-            Box(modifier) {
+            Box(modifier = modifier) {
                 GalleryContent(
                     viewModel = viewModel,
-                    showLimitedAccess = showLimitedAccess
+                    hasLimitedAccess = showLimitedAccess
                 )
             }
         }
@@ -43,7 +45,7 @@ fun Gallery(
 @Composable
 private fun GalleryContent(
     viewModel: FaceDetectionViewModel,
-    showLimitedAccess: Boolean,
+    hasLimitedAccess: Boolean,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -57,19 +59,19 @@ private fun GalleryContent(
                 onStartScan = {
                     viewModel.scanImages(
                         reset = true,
-                        onlyLatestSelection = showLimitedAccess
+                        onlyLatestSelection = hasLimitedAccess
                     )
                 }
             )
 
             GalleryUiState.Loading -> SuccessState(
                 state = GalleryUiState.Success(images = emptyList(), hasMore = true),
-                onLoadMore = { viewModel.scanImages(onlyLatestSelection = showLimitedAccess) }
+                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) }
             )
 
             is GalleryUiState.Success -> SuccessState(
                 state = state,
-                onLoadMore = { viewModel.scanImages(onlyLatestSelection = showLimitedAccess) }
+                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) }
             )
 
             is GalleryUiState.Error -> ErrorState(
@@ -77,7 +79,7 @@ private fun GalleryContent(
                 onRetry = {
                     viewModel.scanImages(
                         reset = true,
-                        onlyLatestSelection = showLimitedAccess
+                        onlyLatestSelection = hasLimitedAccess
                     )
                 }
             )
@@ -98,7 +100,7 @@ private fun InitialState(onStartScan: () -> Unit) {
 
 @Composable
 private fun SuccessState(state: GalleryUiState.Success, onLoadMore: () -> Unit) {
-    if (state.images.isEmpty() && !state.hasMore) {
+    if (state.isEmpty) {
         MessageBox(text = stringResource(R.string.gallery_no_photos_found))
     } else {
         GalleryGrid(
@@ -112,6 +114,6 @@ private fun SuccessState(state: GalleryUiState.Success, onLoadMore: () -> Unit) 
 @Composable
 private fun ErrorState(error: Throwable, onRetry: () -> Unit) {
     MessageBox(error.localizedMessage.orEmpty()) {
-        MessageButton("Retry", onClick = onRetry)
+        MessageButton(stringResource(R.string.retry), onClick = onRetry)
     }
 }

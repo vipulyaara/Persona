@@ -1,4 +1,4 @@
-package app.persona.face.detection
+package app.persona.face.detection.gallery
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box

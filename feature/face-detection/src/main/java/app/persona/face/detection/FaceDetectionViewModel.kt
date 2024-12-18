@@ -145,7 +145,9 @@ sealed interface GalleryUiState {
     data class Success(
         val images: List<ProcessedImageWithBitmap>,
         val hasMore: Boolean
-    ) : GalleryUiState
+    ) : GalleryUiState {
+        val isEmpty = images.isEmpty() && !hasMore
+    }
 
     data class Error(val error: Throwable) : GalleryUiState
 }
