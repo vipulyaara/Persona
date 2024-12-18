@@ -8,11 +8,14 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore.Images.Media
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.persona.face.detection.permissions.PhotoPermissionManager
 import app.persona.media.detection.FaceDetectorHelper
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class FaceDetectionViewModel(private val application: Context) : ViewModel() {
@@ -33,7 +36,19 @@ class FaceDetectionViewModel(private val application: Context) : ViewModel() {
     private var currentCursor: Int = 0
     private val batchSize = 20
 
-    suspend fun scanImages(reset: Boolean = false) {
+    fun scanImages(
+        reset: Boolean = false,
+        onlyLatestSelection: Boolean = false
+    ) {
+        viewModelScope.launch {
+            _scan(reset, onlyLatestSelection)
+        }
+    }
+
+    private suspend fun _scan(
+        reset: Boolean = false,
+        onlyLatestSelection: Boolean = false
+    ) {
         if (_isScanning.value) return
 
         if (reset) {
@@ -47,16 +62,17 @@ class FaceDetectionViewModel(private val application: Context) : ViewModel() {
         withContext(Dispatchers.IO) {
             val projection = arrayOf(
                 Media._ID,
-                Media.DATA,
                 Media.DISPLAY_NAME
             )
+
+            // Pass the onlyLatestSelection parameter
+            val queryArgs = PhotoPermissionManager.createQueryArgs(onlyLatestSelection = onlyLatestSelection)
 
             application.contentResolver.query(
                 Media.EXTERNAL_CONTENT_URI,
                 projection,
-                null,
-                null,
-                "${Media.DATE_ADDED} DESC"
+                queryArgs,
+                null
             )?.use { cursor ->
                 val idColumn = cursor.getColumnIndexOrThrow(Media._ID)
                 val nameColumn = cursor.getColumnIndexOrThrow(Media.DISPLAY_NAME)

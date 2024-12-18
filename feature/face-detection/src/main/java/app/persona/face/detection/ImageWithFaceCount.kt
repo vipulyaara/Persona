@@ -43,10 +43,7 @@ fun ImageWithFaceCount(
     var detections by remember { mutableStateOf(initialDetections) }
     var aspectRatio by remember { mutableFloatStateOf(1f) }
     val faceDetector = remember {
-        FaceDetectorHelper(
-            context = context,
-            runningMode = RunningMode.IMAGE
-        )
+        FaceDetectorHelper(context = context, runningMode = RunningMode.IMAGE)
     }
 
     LaunchedEffect(uri) {
