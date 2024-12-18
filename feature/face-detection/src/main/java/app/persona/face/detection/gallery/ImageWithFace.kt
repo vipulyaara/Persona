@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
@@ -20,8 +24,11 @@ fun ImageWithFace(
     bitmap: Bitmap,
     faceCount: Int,
     aspectRatio: Float,
-    detections: List<FaceDetection>?
+    detections: List<FaceDetection>?,
+    onFaceNameUpdated: (FaceDetection, String) -> Unit
 ) {
+    var selectedFace by remember { mutableStateOf<FaceDetection?>(null) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -32,13 +39,26 @@ fun ImageWithFace(
             modifier = Modifier.fillMaxSize(),
             detections = detections,
             imageWidth = bitmap.width,
-            imageHeight = bitmap.height
+            imageHeight = bitmap.height,
+            onFaceClicked = { face -> selectedFace = face }
         ) {
             Image(
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = "Image with $faceCount faces",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
+            )
+        }
+
+        // Show dialog when a face is selected
+        selectedFace?.let { face ->
+            FaceNameDialog(
+                currentName = face.name,
+                onDismiss = { selectedFace = null },
+                onConfirm = { newName ->
+                    onFaceNameUpdated(face, newName)
+                    selectedFace = null
+                }
             )
         }
     }

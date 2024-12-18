@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import app.persona.data.detection.FaceDetection
 import app.persona.data.detection.ProcessedImageWithBitmap
 import app.persona.theme.Dimens
 
@@ -23,6 +24,7 @@ fun GalleryGrid(
     images: List<ProcessedImageWithBitmap>,
     hasMore: Boolean,
     onLoadMore: () -> Unit,
+    onFaceNameUpdated: (FaceDetection, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LaunchedEffect(hasMore) {
@@ -42,7 +44,8 @@ fun GalleryGrid(
                 bitmap = processedImage.bitmap,
                 faceCount = processedImage.faceCount,
                 aspectRatio = processedImage.aspectRatio,
-                detections = processedImage.detections
+                detections = processedImage.detections,
+                onFaceNameUpdated = onFaceNameUpdated
             )
         }
 

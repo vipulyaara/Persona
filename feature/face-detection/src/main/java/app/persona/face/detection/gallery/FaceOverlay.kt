@@ -1,14 +1,23 @@
 package app.persona.face.detection.gallery
 
+import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
@@ -31,16 +40,41 @@ fun FaceOverlay(
     detections: List<FaceDetection>?,
     imageWidth: Int,
     imageHeight: Int,
+    onFaceClicked: (FaceDetection) -> Unit = {},
     content: @Composable () -> Unit
 ) {
     var canvasSize = IntSize.Zero
+    var selectedFace by remember { mutableStateOf<FaceDetection?>(null) }
 
     Box(modifier = modifier.onSizeChanged { canvasSize = it }) {
         content()
 
         val density = LocalDensity.current
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        // Handle click and find which face was clicked
+                        detections?.firstOrNull { face ->
+                            val scaleX = canvasSize.width.toFloat() / imageWidth
+                            val scaleY = canvasSize.height.toFloat() / imageHeight
+                            val left = face.boundingBox.left * scaleX
+                            val top = face.boundingBox.top * scaleY
+                            val width = face.boundingBox.width() * scaleX
+                            val height = face.boundingBox.height() * scaleY
+                            
+                            // Check if click is within face bounds
+                            offset.x >= left && offset.x <= left + width &&
+                            offset.y >= top && offset.y <= top + height
+                        }?.let { face ->
+                            selectedFace = face
+                            onFaceClicked(face)
+                        }
+                    }
+                }
+        ) {
             if (detections == null || canvasSize.width == 0 || canvasSize.height == 0) return@Canvas
 
             // Calculate scaling factors to map detection coordinates to canvas size
@@ -62,6 +96,19 @@ fun FaceOverlay(
                     size = Size(width, height),
                     style = Stroke(width = with(density) { 2.dp.toPx() })
                 )
+
+                // Draw name if present
+                if (face.name.isNotEmpty()) {
+                    drawContext.canvas.nativeCanvas.drawText(
+                        /* text = */ face.name,
+                        /* x = */ left,
+                        /* y = */ top - 10f,
+                        /* paint = */ Paint().apply {
+                            color = android.graphics.Color.GREEN
+                            textSize = 32f
+                        }
+                    )
+                }
             }
         }
     }

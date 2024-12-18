@@ -66,12 +66,14 @@ private fun GalleryContent(
 
             GalleryUiState.Loading -> SuccessState(
                 state = GalleryUiState.Success(images = emptyList(), hasMore = true),
-                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) }
+                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) },
+                onFaceNameUpdated = viewModel::updateFaceName
             )
 
             is GalleryUiState.Success -> SuccessState(
                 state = state,
-                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) }
+                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) },
+                onFaceNameUpdated = viewModel::updateFaceName
             )
 
             is GalleryUiState.Error -> ErrorState(
@@ -99,14 +101,19 @@ private fun InitialState(onStartScan: () -> Unit) {
 }
 
 @Composable
-private fun SuccessState(state: GalleryUiState.Success, onLoadMore: () -> Unit) {
+private fun SuccessState(
+    state: GalleryUiState.Success,
+    onLoadMore: () -> Unit,
+    onFaceNameUpdated: (app.persona.data.detection.FaceDetection, String) -> Unit
+) {
     if (state.isEmpty) {
         MessageBox(text = stringResource(R.string.gallery_no_photos_found))
     } else {
         GalleryGrid(
             images = state.images,
             hasMore = state.hasMore,
-            onLoadMore = onLoadMore
+            onLoadMore = onLoadMore,
+            onFaceNameUpdated = onFaceNameUpdated
         )
     }
 }

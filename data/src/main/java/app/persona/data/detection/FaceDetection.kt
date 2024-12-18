@@ -9,10 +9,12 @@ import com.google.mediapipe.tasks.components.containers.Detection
  *
  * @property boundingBox Rectangle containing the detected face
  * @property confidence Detection confidence score (0.0 to 1.0)
+ * @property name Name of the detected face
  */
 data class FaceDetection(
     val boundingBox: RectF,
-    val confidence: Float
+    val confidence: Float,
+    val name: String = ""
 ) {
     companion object {
         /**
