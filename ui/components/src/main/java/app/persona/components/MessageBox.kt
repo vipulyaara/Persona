@@ -1,6 +1,5 @@
 package app.persona.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,10 +19,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import app.persona.theme.AppTheme
 import app.persona.theme.Dimens
 
+/**
+ * A composable that displays a message box with text and an action button.
+ * The component consists of two main sections:
+ * 1. A text message displayed in the upper section
+ * 2. An action button with text and forward arrow in the lower section
+ *
+ * The message box is designed to be used for notifications, prompts, or calls-to-action
+ * within the app's UI.
+ */
 @Composable
 fun MessageBox(
     text: String,
@@ -81,48 +88,10 @@ fun MessageBox(
     }
 }
 
+@PreviewLightDark
 @Composable
-fun MessageBox(
-    text: String,
-    modifier: Modifier = Modifier,
-    actionButton: @Composable (() -> Unit)? = null
-) {
-    Surface(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.extraSmall,
-        border = BorderStroke(
-            width = 1.5.dp,
-            color = MaterialTheme.colorScheme.secondary
-        ),
-        color = MaterialTheme.colorScheme.primary
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dimens.Spacing24),
-            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-
-            if (actionButton != null) {
-                Box(Modifier.align(Alignment.End)) {
-                    actionButton()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun MessageButton(text: String, onClick: () -> Unit) {
-    Button(onClick = onClick) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center)
-        )
+fun MessageBoxPreview() {
+    AppTheme {
+        MessageBox(text = "Sample notification to show within UI", actionText = "Proceed") { }
     }
 }

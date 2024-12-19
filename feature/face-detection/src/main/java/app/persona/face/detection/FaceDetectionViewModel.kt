@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,8 +47,11 @@ class FaceDetectionViewModel @Inject constructor(
                 _uiState.value = Loading
             }
 
-            try {
-                detectFacesUseCase(startIndex = currentIndex).collect { result ->
+            detectFacesUseCase(startIndex = currentIndex)
+                .onCompletion {
+                    _uiState.value = Success(emptyList(), hasMore = false)
+                }
+                .collect { result ->
                     result.fold(
                         onSuccess = { update ->
                             currentIndex = update.nextIndex
@@ -58,16 +62,6 @@ class FaceDetectionViewModel @Inject constructor(
                         }
                     )
                 }
-                
-                // Ensure we're in Success state after flow completes
-                if (_uiState.value is Loading) {
-                    _uiState.value = Success(emptyList(), hasMore = false)
-                }
-            } catch (e: Exception) {
-                handleError(e)
-            } finally {
-                isProcessing = false
-            }
         }
     }
 
@@ -119,13 +113,6 @@ class FaceDetectionViewModel @Inject constructor(
     }
 }
 
-/**
- * Represents the different states of the gallery UI.
- * - [Initial]: Initial state before scanning starts
- * - [Loading]: Scanning is in progress
- * - [Success]: Images with faces have been found
- * - [Error]: An error occurred during scanning
- */
 sealed interface GalleryUiState {
     data object Initial : GalleryUiState
 

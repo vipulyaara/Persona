@@ -17,7 +17,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.persona.components.FullScreenMessage
 import app.persona.components.MessageBox
-import app.persona.components.MessageButton
 import app.persona.data.detection.FaceDetection
 import app.persona.face.detection.FaceDetectionViewModel
 import app.persona.face.detection.GalleryUiState
@@ -142,10 +141,10 @@ private fun ErrorMessage(
 ) {
     MessageBox(
         text = error.localizedMessage.orEmpty(),
-        modifier = Modifier.padding(contentPadding)
-    ) {
-        MessageButton(stringResource(R.string.retry), onClick = onRetry)
-    }
+        modifier = Modifier.padding(contentPadding),
+        actionText = stringResource(R.string.retry),
+        onClick = onRetry
+    )
 }
 
 private fun openSettings(context: Context) {

@@ -45,7 +45,7 @@ class DetectFacesUseCase @Inject constructor(
             startIndex = startIndex,
             batchSize = batchSize
         )
-            .flatMapMerge(concurrency = 2) { batch -> processBatch(batch) } //
+            .flatMapMerge(concurrency = 2) { batch -> processBatch(batch) }
             .catch { error -> emit(Result.failure(error)) }
 
     /**

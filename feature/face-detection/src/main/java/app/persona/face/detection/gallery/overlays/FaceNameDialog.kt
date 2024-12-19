@@ -26,9 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import app.persona.feature.face.detection.R
+import app.persona.theme.AppTheme
 import app.persona.theme.Dimens
 
 @Composable
@@ -115,4 +117,12 @@ fun FaceNameDialog(
             }
         }
     }
-} 
+}
+
+@PreviewLightDark
+@Composable
+fun FaceNameDialogPreview() {
+    AppTheme {
+        FaceNameDialog("John Doe", onDismiss = {}, onConfirm = {})
+    }
+}

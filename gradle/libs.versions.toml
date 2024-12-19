@@ -23,6 +23,7 @@ compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = 
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "dagger" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
