@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "app.persona.data"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26

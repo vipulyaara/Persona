@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "app.persona"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "app.persona"

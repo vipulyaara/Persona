@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "app.persona.feature.face.detection"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
