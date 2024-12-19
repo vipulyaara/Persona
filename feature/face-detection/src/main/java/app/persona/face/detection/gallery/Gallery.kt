@@ -1,6 +1,7 @@
 package app.persona.face.detection.gallery
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +28,7 @@ import app.persona.theme.Dimens
 @Composable
 fun Gallery(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     viewModel: FaceDetectionViewModel = hiltViewModel()
 ) {
     var permission by remember { mutableStateOf(PhotoPermissionState.Denied) }
@@ -40,12 +42,12 @@ fun Gallery(
     }
 
     if (permission.hasAccess()) {
-        Column(modifier = modifier) {
-            GalleryContent(
-                viewModel = viewModel,
-                hasPartialAccess = permission.isPartial()
-            )
-        }
+        GalleryContent(
+            viewModel = viewModel,
+            hasPartialAccess = permission.isPartial(),
+            modifier = modifier,
+            contentPadding = contentPadding
+        )
     }
 }
 
@@ -53,12 +55,13 @@ fun Gallery(
 private fun GalleryContent(
     viewModel: FaceDetectionViewModel,
     hasPartialAccess: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
-        modifier = modifier.padding(Dimens.Gutter),
+        modifier = modifier.padding(horizontal = Dimens.Gutter),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (val state = uiState) {
@@ -66,12 +69,14 @@ private fun GalleryContent(
 
             GalleryUiState.Loading -> SuccessState(
                 state = GalleryUiState.Success(images = emptyList(), hasMore = true),
+                contentPadding = contentPadding,
                 onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasPartialAccess) },
                 onFaceNameUpdated = viewModel::updateFaceName
             )
 
             is GalleryUiState.Success -> SuccessState(
                 state = state,
+                contentPadding = contentPadding,
                 onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasPartialAccess) },
                 onFaceNameUpdated = viewModel::updateFaceName,
                 header = {
@@ -85,6 +90,7 @@ private fun GalleryContent(
 
             is GalleryUiState.Error -> ErrorState(
                 error = state.error,
+                modifier = Modifier.padding(contentPadding),
                 onRetry = {
                     viewModel.scanImages(
                         reset = true,
@@ -99,6 +105,7 @@ private fun GalleryContent(
 @Composable
 private fun SuccessState(
     state: GalleryUiState.Success,
+    contentPadding: PaddingValues = PaddingValues(),
     onLoadMore: () -> Unit,
     onFaceNameUpdated: (FaceDetection, String) -> Unit,
     header: @Composable () -> Unit = {}
@@ -108,6 +115,7 @@ private fun SuccessState(
     } else {
         GalleryGrid(
             images = state.images,
+            contentPadding = contentPadding,
             hasMore = state.hasMore,
             onLoadMore = onLoadMore,
             onFaceNameUpdated = onFaceNameUpdated,
@@ -117,8 +125,8 @@ private fun SuccessState(
 }
 
 @Composable
-private fun ErrorState(error: Throwable, onRetry: () -> Unit) {
-    MessageBox(error.localizedMessage.orEmpty()) {
+private fun ErrorState(error: Throwable, modifier: Modifier = Modifier, onRetry: () -> Unit) {
+    MessageBox(text = error.localizedMessage.orEmpty(), modifier = modifier) {
         MessageButton(stringResource(R.string.retry), onClick = onRetry)
     }
 }

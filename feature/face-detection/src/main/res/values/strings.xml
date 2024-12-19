@@ -6,4 +6,7 @@
     <string name="retry">Retry</string>
     <string name="request_permission">Request Permission</string>
     <string name="open_settings">Open Settings</string>
+    <string name="name_this_face">Name this face</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>

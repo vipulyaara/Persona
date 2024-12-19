@@ -3,6 +3,7 @@ package app.persona.face.detection.gallery
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ fun GalleryGrid(
     onLoadMore: () -> Unit,
     onFaceNameUpdated: (FaceDetection, String) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     header: @Composable () -> Unit
 ) {
     LaunchedEffect(hasMore) {
@@ -38,6 +40,7 @@ fun GalleryGrid(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         modifier = modifier.fillMaxSize(),
+        contentPadding = contentPadding,
         horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing08),
         verticalItemSpacing = Dimens.Spacing08,
     ) {
