@@ -1,49 +1,29 @@
 [versions]
 accompanist = "0.37.0"
-androidxhilt = "1.2.0"
+activityCompose = "1.9.3"
 agp = "8.6.1"
-kotlin = "2.0.21"
-camerax = "1.4.1"
-coreKtx = "1.15.0"
+composeBom = "2024.12.01"
 dagger = "2.51.1"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
+kotlin = "2.0.21"
 lifecycle = "2.8.7"
-activityCompose = "1.9.3"
-composeBom = "2024.12.01"
-appcompat = "1.7.0"
-material = "1.12.0"
 mediapipe = "0.10.20"
 tasks = "0.20230731"
-appcompatVersion = "1.7.0"
-materialVersion = "1.12.0"
-androidxAppcompat = "1.7.0"
-googleMaterial = "1.12.0"
 
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 
-camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
-
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
-androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "androidxhilt" }
 androidx-hilt-compose = "androidx.hilt:hilt-navigation-compose:1.2.0"
-androidx-hilt-navigation = { module = "androidx.hilt:hilt-navigation", version.ref = "androidxhilt" }
 
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "dagger" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
@@ -53,9 +33,10 @@ leakCanary = "com.squareup.leakcanary:leakcanary-android:2.14"
 mediapipe-face-detection = { group = "com.google.mediapipe", name = "facedetection", version.ref = "mediapipe" }
 mediapipe-tasks-core = { group = "com.google.mediapipe", name = "tasks-core", version.ref = "tasks" }
 mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "tasks" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
 
+kotlin-coroutines-test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
+mockito-kotlin = "org.mockito.kotlin:mockito-kotlin:5.2.1"
+turbine = "app.cash.turbine:turbine:1.2.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
