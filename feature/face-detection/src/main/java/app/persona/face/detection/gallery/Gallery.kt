@@ -41,15 +41,9 @@ fun Gallery(
 
     if (permission.hasAccess()) {
         Column(modifier = modifier) {
-            if (permission.isPartial()) {
-                LimitedAccessHeader {
-                    viewModel.scanImages(reset = true, onlyLatestSelection = true)
-                }
-            }
-
             GalleryContent(
                 viewModel = viewModel,
-                hasLimitedAccess = permission.isPartial()
+                hasPartialAccess = permission.isPartial()
             )
         }
     }
@@ -58,7 +52,7 @@ fun Gallery(
 @Composable
 private fun GalleryContent(
     viewModel: FaceDetectionViewModel,
-    hasLimitedAccess: Boolean,
+    hasPartialAccess: Boolean,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -72,14 +66,21 @@ private fun GalleryContent(
 
             GalleryUiState.Loading -> SuccessState(
                 state = GalleryUiState.Success(images = emptyList(), hasMore = true),
-                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) },
+                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasPartialAccess) },
                 onFaceNameUpdated = viewModel::updateFaceName
             )
 
             is GalleryUiState.Success -> SuccessState(
                 state = state,
-                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasLimitedAccess) },
-                onFaceNameUpdated = viewModel::updateFaceName
+                onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasPartialAccess) },
+                onFaceNameUpdated = viewModel::updateFaceName,
+                header = {
+                    if (hasPartialAccess) {
+                        LimitedAccessHeader {
+                            viewModel.scanImages(reset = true, onlyLatestSelection = true)
+                        }
+                    }
+                }
             )
 
             is GalleryUiState.Error -> ErrorState(
@@ -87,7 +88,7 @@ private fun GalleryContent(
                 onRetry = {
                     viewModel.scanImages(
                         reset = true,
-                        onlyLatestSelection = hasLimitedAccess
+                        onlyLatestSelection = hasPartialAccess
                     )
                 }
             )
@@ -99,7 +100,8 @@ private fun GalleryContent(
 private fun SuccessState(
     state: GalleryUiState.Success,
     onLoadMore: () -> Unit,
-    onFaceNameUpdated: (FaceDetection, String) -> Unit
+    onFaceNameUpdated: (FaceDetection, String) -> Unit,
+    header: @Composable () -> Unit = {}
 ) {
     if (state.isEmpty) {
         MessageBox(text = stringResource(R.string.no_photos_found))
@@ -108,7 +110,8 @@ private fun SuccessState(
             images = state.images,
             hasMore = state.hasMore,
             onLoadMore = onLoadMore,
-            onFaceNameUpdated = onFaceNameUpdated
+            onFaceNameUpdated = onFaceNameUpdated,
+            header = header
         )
     }
 }

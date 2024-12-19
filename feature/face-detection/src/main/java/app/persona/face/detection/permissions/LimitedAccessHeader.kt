@@ -9,14 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import app.persona.components.MessageBox
 import app.persona.theme.Dimens
 
@@ -32,15 +27,12 @@ fun LimitedAccessHeader(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimens.Gutter),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MessageBox(text = "Limited photo access granted. You can select more photos anytime.")
-        Spacer(modifier = Modifier.height(Dimens.Spacing08))
-
-        Button(
+        MessageBox(
+            text = "Limited photo access granted. You can select more photos anytime.",
+            actionText = "Select More Photos",
             onClick = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     val intent = Intent(MediaStore.ACTION_PICK_IMAGES).apply {
@@ -49,13 +41,8 @@ fun LimitedAccessHeader(
                     }
                     photoPickerLauncher.launch(intent)
                 }
-            }
-        ) {
-            Text(
-                text = "Select More Photos",
-                style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center)
-            )
-        }
-        Spacer(modifier = Modifier.height(Dimens.Spacing08))
+            })
+
+        Spacer(modifier = Modifier.height(Dimens.Spacing24))
     }
 } 
