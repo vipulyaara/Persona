@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.persona.data.detection.FaceDetection
 import app.persona.data.detection.ProcessedImageWithBitmap
-import app.persona.data.image.BitmapLoader
-import app.persona.data.image.ImageBatch
-import app.persona.data.image.ImageRepository
 import app.persona.domain.DetectFacesUseCase
 import app.persona.face.detection.GalleryUiState.Error
 import app.persona.face.detection.GalleryUiState.Initial
@@ -16,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,8 +24,6 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class FaceDetectionViewModel @Inject constructor(
-    private val imageRepository: ImageRepository,
-    private val bitmapLoader: BitmapLoader,
     private val detectFacesUseCase: DetectFacesUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<GalleryUiState>(Initial)
@@ -37,37 +31,6 @@ class FaceDetectionViewModel @Inject constructor(
 
     private var currentIndex = 0
     private var isProcessing = false
-    private val faceNames = mutableMapOf<String, String>() // Map to store face names
-
-    /**
-     * Updates the name of a face and propagates the change to all matching faces.
-     * todo: fix
-     */
-    fun updateFaceName(face: FaceDetection, newName: String) {
-        val key = "${face.boundingBox.left},${face.boundingBox.top},${face.boundingBox.right},${face.boundingBox.bottom}"
-        faceNames[key] = newName
-
-        _uiState.update { currentState ->
-            when (currentState) {
-                is Success -> {
-                    // Update all matching faces with the new name
-                    val updatedImages = currentState.images.map { processedImage ->
-                        val updatedDetections = processedImage.detections?.map { detection ->
-                            val detectionKey = "${detection.boundingBox.left},${detection.boundingBox.top},${detection.boundingBox.right},${detection.boundingBox.bottom}"
-                            if (faceNames.containsKey(detectionKey)) {
-                                detection.copy(name = faceNames[detectionKey] ?: "")
-                            } else {
-                                detection
-                            }
-                        }
-                        processedImage.copy(detections = updatedDetections)
-                    }
-                    currentState.copy(images = updatedImages)
-                }
-                else -> currentState
-            }
-        }
-    }
 
     /**
      * Initiates or continues the image scanning process.
@@ -79,18 +42,27 @@ class FaceDetectionViewModel @Inject constructor(
         if (reset) resetState()
 
         viewModelScope.launch {
-            try {
-                isProcessing = true
-                if (_uiState.value is Initial) {
-                    _uiState.value = Loading
-                }
-
-                collectAndProcessImages(onlyLatestSelection)
-            } catch (e: Exception) {
-                handleError(e)
-            } finally {
-                isProcessing = false
+            isProcessing = true
+            if (_uiState.value is Initial) {
+                _uiState.value = Loading
             }
+
+            detectFacesUseCase(
+                startIndex = currentIndex,
+                onlyLatestSelection = onlyLatestSelection
+            ).collect { result ->
+                result.fold(
+                    onSuccess = { update ->
+                        currentIndex = update.nextIndex
+                        updateUiState(update.image, update.hasMore)
+                    },
+                    onFailure = { error ->
+                        handleError(error)
+                    }
+                )
+            }
+
+            isProcessing = false
         }
     }
 
@@ -100,48 +72,28 @@ class FaceDetectionViewModel @Inject constructor(
     }
 
     /**
-     * Collects and processes images in batches to prevent overwhelming the system.
-     * Only keeps images where faces are detected.
+     * Updates the name of a specific face detection
      */
-    private suspend fun collectAndProcessImages(onlyLatestSelection: Boolean) {
-        imageRepository.getImagesStream(
-            startIndex = currentIndex,
-            onlyLatestSelection = onlyLatestSelection
-        )
-            .catch { error -> handleError(error) }
-            .collect { batch -> processImageBatch(batch) }
-    }
-
-    /**
-     * Processes a batch of images, detecting faces in each image.
-     * Applies any existing face names to the detections.
-     */
-    private suspend fun processImageBatch(batch: ImageBatch) {
-        batch.images.forEach { imageData ->
-            bitmapLoader.loadBitmap(imageData.uri).onSuccess { bitmap ->
-                detectFacesUseCase(bitmap).takeIf { it.faceCount > 0 }?.let { detectionResult ->
-                    // Apply any existing face names to the detections
-                    val updatedDetections = detectionResult.detections?.map { detection ->
-                        val key = "${detection.boundingBox.left},${detection.boundingBox.top},${detection.boundingBox.right},${detection.boundingBox.bottom}"
-                        if (faceNames.containsKey(key)) {
-                            detection.copy(name = faceNames[key] ?: "")
-                        } else {
-                            detection
+    fun updateFaceName(face: FaceDetection, newName: String) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is Success -> {
+                    val updatedImages = currentState.images.map { processedImage ->
+                        val updatedDetections = processedImage.detections?.map { detection ->
+                            if (detection === face) {
+                                detection.copy(name = newName)
+                            } else {
+                                detection
+                            }
                         }
+                        processedImage.copy(detections = updatedDetections)
                     }
-
-                    val processedImage = ProcessedImageWithBitmap(
-                        uri = imageData.uri,
-                        bitmap = bitmap,
-                        faceCount = detectionResult.faceCount,
-                        detections = updatedDetections,
-                        aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
-                    )
-                    updateUiState(newImage = processedImage, hasMore = batch.hasMore)
+                    currentState.copy(images = updatedImages)
                 }
+
+                else -> currentState
             }
         }
-        currentIndex = batch.nextIndex
     }
 
     private fun updateUiState(newImage: ProcessedImageWithBitmap, hasMore: Boolean) {
@@ -151,6 +103,7 @@ class FaceDetectionViewModel @Inject constructor(
                     images = currentState.images + newImage,
                     hasMore = hasMore
                 )
+
                 else -> Success(
                     images = listOf(newImage),
                     hasMore = hasMore
