@@ -17,7 +17,7 @@ The project follows a modular architecture with clear separation of concerns:
 
 - **app** contains app launcher activity and application-level configuration
 - **data** contains data models and repositories for low-level data manipulation
-- **domain** is gateway to data layer and handles business logic
+- **domain** is the gateway to data layer and handles business logic
 - **ui/components** contains UI components commonly used by feature modules
 - **ui/theme** contains theming and design-system
 - **feature/face-detection** is feature module for face detection screen
@@ -78,8 +78,6 @@ This system handles photo access permissions across different Android versions, 
   3. Deny access completely
 
 ## Important Notes
-- Partial access feature only works on Android 14 and above
-- Older versions fall back to traditional permission model
 - Permission state persists across app restarts
 - Users can modify permissions through system settings anytime
 - Application backup is turned off in case we want to test different permission workflows by clearing data or uninstalling the app
@@ -102,9 +100,8 @@ This system handles photo access permissions across different Android versions, 
 
 ### Build and Run
 1. Connect your Android device or start an emulator
-2. Select your target device in Android Studio
-3. Click the "Run" button (green play icon) or press Shift + F10
-4. Wait for the app to build and install on your device
+2. Click the "Run" button or press Shift + F10
+3. Wait for the app to build and install on your device
 
 ### Running Tests
 - Run unit tests: `./gradlew test`
