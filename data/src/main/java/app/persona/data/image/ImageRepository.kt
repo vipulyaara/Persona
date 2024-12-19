@@ -1,10 +1,13 @@
 package app.persona.data.image
 
+import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.MediaStore.Images.Media
-import app.persona.data.permissions.PhotoPermissionHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -28,20 +31,13 @@ class ImageRepository @Inject constructor(
      *
      * @param batchSize Number of images to load in each batch
      * @param startIndex Starting position for pagination
-     * @param onlyLatestSelection If true, only returns images selected through partial photo access
      * @return Flow of [ImageBatch] containing URIs and metadata for found images
      */
-    fun getImagesStream(
-        batchSize: Int = 20,
-        startIndex: Int = 0,
-        onlyLatestSelection: Boolean = false
-    ): Flow<ImageBatch> = flow {
-        val queryArgs = PhotoPermissionHelper.createQueryArgs(onlyLatestSelection)
-
+    fun getImagesStream(batchSize: Int = 20, startIndex: Int = 0): Flow<ImageBatch> = flow {
         context.contentResolver.query(
             Media.EXTERNAL_CONTENT_URI,
             PROJECTION,
-            queryArgs,
+            createQueryArgs(),
             null
         )?.use { cursor ->
             var currentIndex = startIndex
@@ -89,11 +85,33 @@ class ImageRepository @Inject constructor(
             processedCount++
         }
 
+        val hasMore = processedCount == batchSize && cursor.moveToNext()
+        if (hasMore) cursor.moveToPrevious()
+
         ImageBatch(
             images = images,
-            hasMore = !cursor.isLast,
+            hasMore = hasMore,
             nextIndex = startIndex + processedCount
         )
+    }
+
+    /**
+     * Creates query arguments for MediaStore content resolver queries.
+     * Specifically handles Android 14+ photo picker functionality.
+     *
+     * @return Bundle with query arguments for Android 14+, null for older versions
+     */
+    private fun createQueryArgs(): Bundle? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Bundle().apply {
+                putString(
+                    ContentResolver.QUERY_ARG_SQL_SORT_ORDER,
+                    "${MediaStore.MediaColumns.DATE_ADDED} DESC"
+                )
+            }
+        } else {
+            null
+        }
     }
 
     companion object {

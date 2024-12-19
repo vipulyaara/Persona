@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import app.persona.data.detection.FaceDetection
+import app.persona.face.detection.gallery.overlays.FaceNameDialog
+import app.persona.face.detection.gallery.overlays.FaceOverlay
 
 @Composable
 fun ImageWithFace(

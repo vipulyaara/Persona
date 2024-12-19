@@ -48,7 +48,7 @@ fun GalleryGrid(
             header()
         }
 
-        items(images) { processedImage ->
+        items(items = images, key = { it.uri }) { processedImage ->
             ImageWithFace(
                 bitmap = processedImage.bitmap,
                 aspectRatio = processedImage.aspectRatio,
@@ -69,6 +69,18 @@ fun GalleryGrid(
             }
         }
     }
+}
+
+@Composable
+fun LoadingGalleryGrid(contentPadding: PaddingValues, header: @Composable () -> Unit) {
+    GalleryGrid(
+        images = emptyList(),
+        hasMore = true,
+        contentPadding = contentPadding,
+        onLoadMore = {},
+        onFaceNameUpdated = { _, _ -> },
+        header = header
+    )
 }
 
 const val PlaceholderCount = 6

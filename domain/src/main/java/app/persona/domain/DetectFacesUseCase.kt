@@ -34,18 +34,15 @@ class DetectFacesUseCase @Inject constructor(
      * Images are processed in batches for efficiency.
      *
      * @param startIndex The index to start processing from
-     * @param onlyLatestSelection If true, only processes recently selected images
      * @param batchSize The number of images to process in each batch
      * @return Flow of Results containing [ProcessedImageUpdate] for each processed image
      */
     operator fun invoke(
         startIndex: Int,
-        onlyLatestSelection: Boolean = false,
         batchSize: Int = DEFAULT_BATCH_SIZE
     ): Flow<Result<ProcessedImageUpdate>> =
         imageRepository.getImagesStream(
             startIndex = startIndex,
-            onlyLatestSelection = onlyLatestSelection,
             batchSize = batchSize
         )
             .flatMapMerge(concurrency = 2) { batch -> processBatch(batch) } //

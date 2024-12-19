@@ -1,10 +1,5 @@
-package app.persona.face.detection.permissions
+package app.persona.face.detection.gallery.overlays
 
-import android.content.Intent
-import android.os.Build
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,13 +13,7 @@ import app.persona.feature.face.detection.R
 import app.persona.theme.Dimens
 
 @Composable
-fun LimitedAccessHeader(onSelectMore: () -> Unit) {
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { _ ->
-        onSelectMore()
-    }
-
+fun LimitedAccessHeader(requestNewPhotos: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -33,13 +22,7 @@ fun LimitedAccessHeader(onSelectMore: () -> Unit) {
             text = stringResource(R.string.limited_photo_access_is_granted),
             actionText = stringResource(R.string.select_more_photos),
             onClick = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    val intent = Intent(MediaStore.ACTION_PICK_IMAGES).apply {
-                        type = "image/*"
-                        putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 100)
-                    }
-                    photoPickerLauncher.launch(intent)
-                }
+                requestNewPhotos()
             })
 
         Spacer(modifier = Modifier.height(Dimens.Spacing24))

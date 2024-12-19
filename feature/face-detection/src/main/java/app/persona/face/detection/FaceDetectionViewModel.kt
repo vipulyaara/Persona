@@ -35,9 +35,8 @@ class FaceDetectionViewModel @Inject constructor(
     /**
      * Initiates or continues the image scanning process.
      * @param reset If true, resets the scanning progress and starts from the beginning
-     * @param onlyLatestSelection If true, only processes the most recently selected images
      */
-    fun scanImages(reset: Boolean = false, onlyLatestSelection: Boolean = false) {
+    fun scanImages(reset: Boolean = false) {
         if (isProcessing) return
         if (reset) resetState()
 
@@ -47,22 +46,28 @@ class FaceDetectionViewModel @Inject constructor(
                 _uiState.value = Loading
             }
 
-            detectFacesUseCase(
-                startIndex = currentIndex,
-                onlyLatestSelection = onlyLatestSelection
-            ).collect { result ->
-                result.fold(
-                    onSuccess = { update ->
-                        currentIndex = update.nextIndex
-                        updateUiState(update.image, update.hasMore)
-                    },
-                    onFailure = { error ->
-                        handleError(error)
-                    }
-                )
+            try {
+                detectFacesUseCase(startIndex = currentIndex).collect { result ->
+                    result.fold(
+                        onSuccess = { update ->
+                            currentIndex = update.nextIndex
+                            updateUiState(update.image, update.hasMore)
+                        },
+                        onFailure = { error ->
+                            handleError(error)
+                        }
+                    )
+                }
+                
+                // Ensure we're in Success state after flow completes
+                if (_uiState.value is Loading) {
+                    _uiState.value = Success(emptyList(), hasMore = false)
+                }
+            } catch (e: Exception) {
+                handleError(e)
+            } finally {
+                isProcessing = false
             }
-
-            isProcessing = false
         }
     }
 

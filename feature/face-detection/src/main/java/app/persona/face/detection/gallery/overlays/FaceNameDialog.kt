@@ -1,4 +1,4 @@
-package app.persona.face.detection.gallery
+package app.persona.face.detection.gallery.overlays
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

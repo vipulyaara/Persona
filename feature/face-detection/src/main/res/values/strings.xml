@@ -11,4 +11,7 @@
     <string name="save">Save</string>
     <string name="limited_photo_access_is_granted">Limited photo access is granted. You can select more photos anytime.</string>
     <string name="select_more_photos">Select More Photos</string>
+    <string name="permission_request_message">Persona requires permissions to access your photos to identify faces.</string>
+    <string name="did_not_find_a_photo_with_face">Did not find a photo with face</string>
+    <string name="give_access_to_more_photos">Try giving access to photos with faces in them</string>
 </resources>
