@@ -100,17 +100,17 @@ fun rememberGalleryPermissionState(
         }
     }
 
-    // Check initial permission status when composable is created
-    LaunchedEffect(Unit) {
-        updatePermissionStatus()
-    }
-
     val permissionsState = rememberPermissionState(
         onPermissionResult = { _ ->
             hasResponded = true
             updatePermissionStatus()
         }
     )
+
+    // Observe changes in the permissions state
+    LaunchedEffect(permissionsState.allPermissionsGranted) {
+        updatePermissionStatus()
+    }
 
     return remember(permissionsState, status, hasResponded) {
         GalleryPermissionState(
