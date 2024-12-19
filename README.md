@@ -136,3 +136,7 @@ When user chooses "Select photos":
 - Older versions fall back to traditional permission model
 - Permission state persists across app restarts
 - Users can modify permissions through system settings anytime 
+
+| Full Access | Limited Access | Face Detection |
+|:-----------:|:-------------:|:--------------:|
+| <!-- Video 1 --> | <!-- Video 2 --> | <!-- Video 3 --> |
