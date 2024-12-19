@@ -1,6 +1,5 @@
 package app.persona.face.detection.gallery
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -19,8 +18,9 @@ import app.persona.components.MessageButton
 import app.persona.data.detection.FaceDetection
 import app.persona.face.detection.FaceDetectionViewModel
 import app.persona.face.detection.GalleryUiState
-import app.persona.face.detection.permissions.PermissionState
+import app.persona.face.detection.permissions.LimitedAccessHeader
 import app.persona.face.detection.permissions.PhotoPermissionHandler
+import app.persona.face.detection.permissions.PhotoPermissionState
 import app.persona.feature.face.detection.R
 import app.persona.theme.Dimens
 
@@ -29,12 +29,10 @@ fun Gallery(
     modifier: Modifier = Modifier,
     viewModel: FaceDetectionViewModel = hiltViewModel()
 ) {
-    var permission by remember { mutableStateOf(PermissionState.Denied) }
+    var permission by remember { mutableStateOf(PhotoPermissionState.Denied) }
 
     PhotoPermissionHandler(
-        onPermissionGranted = { permissionState ->
-            permission = permissionState
-        }
+        onPermissionGranted = { permissionState -> permission = permissionState }
     )
 
     LaunchedEffect(permission) {
@@ -42,10 +40,16 @@ fun Gallery(
     }
 
     if (permission.hasAccess()) {
-        Box(modifier = modifier) {
+        Column(modifier = modifier) {
+            if (permission.isPartial()) {
+                LimitedAccessHeader {
+                    viewModel.scanImages(reset = true, onlyLatestSelection = true)
+                }
+            }
+
             GalleryContent(
                 viewModel = viewModel,
-                hasLimitedAccess = permission == PermissionState.Partial
+                hasLimitedAccess = permission.isPartial()
             )
         }
     }

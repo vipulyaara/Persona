@@ -14,12 +14,13 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 internal fun colorScheme(
     useDarkColors: Boolean,
+    useMaterialYou: Boolean = false
 ): ColorScheme = when {
-    isAtLeastS() && useDarkColors -> {
+    useMaterialYou && isAtLeastS() && useDarkColors -> {
         dynamicDarkColorScheme(LocalContext.current)
     }
 
-    isAtLeastS() && !useDarkColors -> {
+    useMaterialYou && isAtLeastS() && !useDarkColors -> {
         dynamicLightColorScheme(LocalContext.current)
     }
 
@@ -64,7 +65,10 @@ val LightAppColors = lightColorScheme(
     onErrorContainer = Color(0xFF410E0B),
 
     outline = Color(0xFF4C5640),
-    surfaceTint = Color(0xFF4A3200)
+    surfaceTint = Color(0xFF4A3200),
+
+    inverseSurface = Color(0xFF000000),
+    inverseOnSurface = Color(0xFFFFFFFF),
 )
 
 val DarkAppColors = darkColorScheme(

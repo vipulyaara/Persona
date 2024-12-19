@@ -3,6 +3,8 @@ package app.persona.face.detection.permissions
 import android.content.Intent
 import android.os.Build
 import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import app.persona.components.MessageBox
 import app.persona.theme.Dimens
@@ -23,7 +24,12 @@ import app.persona.theme.Dimens
 fun LimitedAccessHeader(
     onSelectMore: () -> Unit
 ) {
-    val context = LocalContext.current
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        // Call onSelectMore when photo selection is completed
+        onSelectMore()
+    }
 
     Column(
         modifier = Modifier
@@ -41,8 +47,7 @@ fun LimitedAccessHeader(
                         type = "image/*"
                         putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 100)
                     }
-                    context.startActivity(intent)
-                    onSelectMore()
+                    photoPickerLauncher.launch(intent)
                 }
             }
         ) {
