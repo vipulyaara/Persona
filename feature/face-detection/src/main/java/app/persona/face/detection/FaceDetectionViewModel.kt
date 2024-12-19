@@ -49,16 +49,16 @@ class FaceDetectionViewModel @Inject constructor(
             try {
                 detectFacesUseCase(startIndex = currentIndex)
                     .collect { result ->
-                    result.fold(
-                        onSuccess = { update ->
-                            currentIndex = update.nextIndex
-                            updateUiState(update.image, update.hasMore)
-                        },
-                        onFailure = { error ->
-                            handleError(error)
-                        }
-                    )
-                }
+                        result.fold(
+                            onSuccess = { update ->
+                                currentIndex = update.nextIndex
+                                updateUiState(update.image, update.hasMore)
+                            },
+                            onFailure = { error ->
+                                handleError(error)
+                            }
+                        )
+                    }
 
                 // Ensure we're in Success state after flow completes
                 if (_uiState.value is Loading) {
