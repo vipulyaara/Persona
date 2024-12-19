@@ -89,11 +89,6 @@ class FaceDetectorHelper @Inject constructor(
     }
 
     /**
-     * Checks if the detector has been released or not properly initialized.
-     */
-    fun isClosed(): Boolean = faceDetector == null
-
-    /**
      * Performs face detection on the provided bitmap.
      * The process includes:
      * 1. Converting the bitmap to MediaPipe's image format

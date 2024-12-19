@@ -27,7 +27,7 @@ fun PhotoPermissionHandler(
 ) {
     val context = LocalContext.current
     var permissionText by remember { mutableStateOf("") }
-    var showSettings by remember { mutableStateOf(false) }
+    var hasRequestedPermission by remember { mutableStateOf(false) }
 
     val permissions = remember {
         when {
@@ -48,7 +48,10 @@ fun PhotoPermissionHandler(
         }
     }
 
-    val permissionsState = rememberMultiplePermissionsState(permissions = permissions)
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = permissions,
+        onPermissionsResult = { _ -> hasRequestedPermission = true }
+    )
 
     LaunchedEffect(permissionsState.allPermissionsGranted, permissionsState.shouldShowRationale) {
         permissionText = when {
@@ -56,9 +59,6 @@ fun PhotoPermissionHandler(
             PhotoPermissionHelper.hasPartialAccess(context) -> "Partial access granted"
             else -> "Persona requires permissions to access your photos to identify faces."
         }
-
-        showSettings = !permissionsState.allPermissionsGranted
-                && !permissionsState.shouldShowRationale
     }
 
     when {
@@ -71,23 +71,25 @@ fun PhotoPermissionHandler(
         }
 
         else -> {
+            val showSettings = hasRequestedPermission &&
+                    !permissionsState.allPermissionsGranted &&
+                    !permissionsState.shouldShowRationale
+
             FullScreenMessage(
                 text = permissionText,
-                actionText = if (!permissionsState.allPermissionsGranted) {
-                    stringResource(R.string.request_permission)
-                } else {
+                actionText = if (showSettings) {
                     stringResource(R.string.open_settings)
+                } else {
+                    stringResource(R.string.request_permission)
                 }
             ) {
-                if (!permissionsState.allPermissionsGranted) {
-                    // Always try to request permissions first
-                    permissionsState.launchMultiplePermissionRequest()
-                } else if (showSettings) {
-                    // Only show settings if permissions were permanently denied
+                if (showSettings) {
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = Uri.fromParts("package", context.packageName, null)
                     }
                     context.startActivity(intent)
+                } else {
+                    permissionsState.launchMultiplePermissionRequest()
                 }
             }
         }

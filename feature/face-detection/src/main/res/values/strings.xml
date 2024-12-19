@@ -9,4 +9,6 @@
     <string name="name_this_face">Name this face</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="limited_photo_access_is_granted">Limited photo access is granted. You can select more photos anytime.</string>
+    <string name="select_more_photos">Select More Photos</string>
 </resources>
