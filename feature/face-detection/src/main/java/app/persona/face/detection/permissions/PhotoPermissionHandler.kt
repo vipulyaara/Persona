@@ -35,8 +35,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @Composable
 fun PhotoPermissionHandler(
-    onPermissionGranted: @Composable (isLimitedAccess: Boolean) -> Unit,
-    onPermissionStateChanged: (hasAccess: Boolean) -> Unit
+    onPermissionGranted: @Composable (PermissionState) -> Unit
 ) {
     val context = LocalContext.current
     var permissionText by remember { mutableStateOf("") }
@@ -72,20 +71,15 @@ fun PhotoPermissionHandler(
 
         showSettings = !permissionsState.allPermissionsGranted
                 && !permissionsState.shouldShowRationale
-
-        // Notify when permission state changes
-        val hasAccess = PhotoPermissionHelper.hasFullAccess(context) ||
-                PhotoPermissionHelper.hasPartialAccess(context)
-        onPermissionStateChanged(hasAccess)
     }
 
     when {
         PhotoPermissionHelper.hasFullAccess(context) -> {
-            onPermissionGranted(false)
+            onPermissionGranted(PermissionState.Granted)
         }
 
         PhotoPermissionHelper.hasPartialAccess(context) -> {
-            onPermissionGranted(true)
+            onPermissionGranted(PermissionState.Partial)
         }
 
         else -> {
@@ -138,5 +132,7 @@ private fun RequestPermissionButton(
 }
 
 enum class PermissionState {
-    Denied, Granted, Partial
+    Denied, Granted, Partial;
+
+    fun hasAccess() = this == Granted || this == Partial
 }
