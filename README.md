@@ -7,6 +7,10 @@ Persona is an Android application for face detection and management, built with 
 |:-----------:|:-------------:|:--------------:|
 | <video src="https://github.com/user-attachments/assets/274ec590-fab2-4bd5-874b-35feb5fec66e" width="250"/> | <video src="https://github.com/user-attachments/assets/f718188c-a513-466c-9be2-c99fa3365ffa" width="250"/> | <video src="https://github.com/user-attachments/assets/ee2a3418-43ed-49ce-a849-96028876c332" width="250"/> |
 
+
+
+Download APK from [Releases](https://github.com/vipulyaara/Persona/releases/tag/v0.0.1)
+
 ## Project Structure
 
 The project follows a modular architecture with clear separation of concerns:
