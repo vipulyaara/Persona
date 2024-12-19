@@ -58,7 +58,6 @@ android {
 
 dependencies {
     implementation(projects.feature.faceDetection)
-    implementation(projects.ui.media.detection)
     implementation(projects.ui.theme)
 
     implementation(libs.androidx.activity.compose)

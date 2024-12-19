@@ -16,8 +16,6 @@
             <option value="$PROJECT_DIR$/feature/face-detection" />
             <option value="$PROJECT_DIR$/ui" />
             <option value="$PROJECT_DIR$/ui/components" />
-            <option value="$PROJECT_DIR$/ui/media" />
-            <option value="$PROJECT_DIR$/ui/media/detection" />
             <option value="$PROJECT_DIR$/ui/theme" />
           </set>
         </option>
