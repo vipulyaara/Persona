@@ -75,25 +75,17 @@ class FaceDetectionViewModel @Inject constructor(
      * Updates the name of a specific face detection
      */
     fun updateFaceName(face: FaceDetection, newName: String) {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is Success -> {
-                    val updatedImages = currentState.images.map { processedImage ->
-                        val updatedDetections = processedImage.detections?.map { detection ->
-                            if (detection === face) {
-                                detection.copy(name = newName)
-                            } else {
-                                detection
-                            }
-                        }
-                        processedImage.copy(detections = updatedDetections)
-                    }
-                    currentState.copy(images = updatedImages)
-                }
+        val currentState = _uiState.value as? Success ?: return
 
-                else -> currentState
+        _uiState.value = currentState.copy(
+            images = currentState.images.map { processedImage ->
+                processedImage.copy(
+                    detections = processedImage.detections?.map { detection ->
+                        if (detection === face) detection.copy(name = newName) else detection
+                    }
+                )
             }
-        }
+        )
     }
 
     private fun updateUiState(newImage: ProcessedImageWithBitmap, hasMore: Boolean) {
