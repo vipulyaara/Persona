@@ -63,13 +63,15 @@ class DetectFacesUseCase @Inject constructor(
                     onSuccess = { bitmap -> processImageWithFaces(bitmap, imageData.uri) },
                     onFailure = { null }
                 )?.let { processedImage ->
-                    emit(Result.success(
-                        ProcessedImageUpdate(
-                            image = processedImage,
-                            hasMore = batch.hasMore,
-                            nextIndex = batch.nextIndex
+                    emit(
+                        Result.success(
+                            ProcessedImageUpdate(
+                                image = processedImage,
+                                hasMore = batch.hasMore,
+                                nextIndex = batch.nextIndex
+                            )
                         )
-                    ))
+                    )
                 }
         }
     }.flowOn(Dispatchers.Default)

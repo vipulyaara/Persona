@@ -71,7 +71,14 @@ private fun GalleryContent(
                 state = GalleryUiState.Success(images = emptyList(), hasMore = true),
                 contentPadding = contentPadding,
                 onLoadMore = { viewModel.scanImages(onlyLatestSelection = hasPartialAccess) },
-                onFaceNameUpdated = viewModel::updateFaceName
+                onFaceNameUpdated = viewModel::updateFaceName,
+                header = {
+                    if (hasPartialAccess) {
+                        LimitedAccessHeader {
+                            viewModel.scanImages(reset = true, onlyLatestSelection = true)
+                        }
+                    }
+                }
             )
 
             is GalleryUiState.Success -> SuccessState(

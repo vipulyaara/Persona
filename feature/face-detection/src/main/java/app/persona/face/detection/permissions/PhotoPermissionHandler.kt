@@ -28,6 +28,7 @@ fun PhotoPermissionHandler(
     val context = LocalContext.current
     var permissionText by remember { mutableStateOf("") }
     var hasRequestedPermission by remember { mutableStateOf(false) }
+    var currentState by remember { mutableStateOf(PhotoPermissionState.Denied) }
 
     val permissions = remember {
         when {
@@ -53,24 +54,33 @@ fun PhotoPermissionHandler(
         onPermissionsResult = { _ -> hasRequestedPermission = true }
     )
 
+    // Check permission status when returning from settings
     LaunchedEffect(permissionsState.allPermissionsGranted, permissionsState.shouldShowRationale) {
-        permissionText = when {
-            PhotoPermissionHelper.hasFullAccess(context) -> "All permissions granted"
-            PhotoPermissionHelper.hasPartialAccess(context) -> "Partial access granted"
-            else -> "Persona requires permissions to access your photos to identify faces."
+        currentState = when {
+            PhotoPermissionHelper.hasFullAccess(context) -> PhotoPermissionState.Granted
+            PhotoPermissionHelper.hasPartialAccess(context) -> PhotoPermissionState.Partial
+            else -> PhotoPermissionState.Denied
         }
     }
 
-    when {
-        PhotoPermissionHelper.hasFullAccess(context) -> {
+    LaunchedEffect(currentState) {
+        permissionText = when (currentState) {
+            PhotoPermissionState.Granted -> "All permissions granted"
+            PhotoPermissionState.Partial -> "Partial access granted"
+            PhotoPermissionState.Denied -> "Persona requires permissions to access your photos to identify faces."
+        }
+    }
+
+    when (currentState) {
+        PhotoPermissionState.Granted -> {
             onPermissionGranted(PhotoPermissionState.Granted)
         }
 
-        PhotoPermissionHelper.hasPartialAccess(context) -> {
+        PhotoPermissionState.Partial -> {
             onPermissionGranted(PhotoPermissionState.Partial)
         }
 
-        else -> {
+        PhotoPermissionState.Denied -> {
             val showSettings = hasRequestedPermission &&
                     !permissionsState.allPermissionsGranted &&
                     !permissionsState.shouldShowRationale
