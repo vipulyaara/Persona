@@ -12,14 +12,12 @@ import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetectorResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Low-level helper class that manages MediaPipe face detector initialization and execution.
  * Handles hardware acceleration selection, model loading, and inference execution.
  * This class serves as the boundary between our application and the MediaPipe ML framework.
  */
-@Singleton
 class FaceDetectorHelper @Inject constructor(
     @ApplicationContext val context: Context,
 ) {
