@@ -22,7 +22,6 @@ import app.persona.data.detection.FaceDetection
 @Composable
 fun ImageWithFace(
     bitmap: Bitmap,
-    faceCount: Int,
     aspectRatio: Float,
     detections: List<FaceDetection>?,
     onFaceNameUpdated: (FaceDetection, String) -> Unit
@@ -44,7 +43,7 @@ fun ImageWithFace(
         ) {
             Image(
                 bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Image with $faceCount faces",
+                contentDescription = "Image with face",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )

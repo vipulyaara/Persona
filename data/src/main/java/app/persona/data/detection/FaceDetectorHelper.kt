@@ -31,7 +31,6 @@ class FaceDetectorHelper @Inject constructor(
     /**
      * MediaPipe face detector instance.
      * Implemented as a var to support runtime configuration changes and resource cleanup.
-     * Would be preferable as a lazy val if configuration remains constant.
      */
     private var faceDetector: FaceDetector? = null
 

@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,9 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import app.persona.components.MessageBox
-import app.persona.data.permissions.PhotoPermissionManager
+import app.persona.components.MessageButton
+import app.persona.data.permissions.PhotoPermissionHelper
+import app.persona.feature.face.detection.R
 import app.persona.theme.Dimens
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
@@ -36,7 +35,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @Composable
 fun PhotoPermissionHandler(
-    onPermissionGranted: @Composable (showLimitedAccessHeader: Boolean) -> Unit,
+    onPermissionGranted: @Composable (isLimitedAccess: Boolean) -> Unit,
     onPermissionStateChanged: (hasAccess: Boolean) -> Unit
 ) {
     val context = LocalContext.current
@@ -66,23 +65,26 @@ fun PhotoPermissionHandler(
 
     LaunchedEffect(permissionsState.allPermissionsGranted) {
         permissionText = when {
-            PhotoPermissionManager.hasFullAccess(context) -> "All permissions granted"
-            PhotoPermissionManager.hasPartialAccess(context) -> "Partial access granted"
+            PhotoPermissionHelper.hasFullAccess(context) -> "All permissions granted"
+            PhotoPermissionHelper.hasPartialAccess(context) -> "Partial access granted"
             else -> "Permission required to access photos"
         }
 
+        showSettings = !permissionsState.allPermissionsGranted
+                && !permissionsState.shouldShowRationale
+
         // Notify when permission state changes
-        val hasAccess = PhotoPermissionManager.hasFullAccess(context) ||
-                PhotoPermissionManager.hasPartialAccess(context)
+        val hasAccess = PhotoPermissionHelper.hasFullAccess(context) ||
+                PhotoPermissionHelper.hasPartialAccess(context)
         onPermissionStateChanged(hasAccess)
     }
 
     when {
-        PhotoPermissionManager.hasFullAccess(context) -> {
+        PhotoPermissionHelper.hasFullAccess(context) -> {
             onPermissionGranted(false)
         }
 
-        PhotoPermissionManager.hasPartialAccess(context) -> {
+        PhotoPermissionHelper.hasPartialAccess(context) -> {
             onPermissionGranted(true)
         }
 
@@ -95,7 +97,11 @@ fun PhotoPermissionHandler(
                 verticalArrangement = Arrangement.Center
             ) {
                 MessageBox(text = permissionText) {
-                    RequestPermissionButton(permissionsState, showSettings, context)
+                    RequestPermissionButton(
+                        permissionsState = permissionsState,
+                        showSettings = showSettings,
+                        context = context
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(Dimens.Spacing08))
@@ -110,7 +116,12 @@ private fun RequestPermissionButton(
     showSettings: Boolean,
     context: Context
 ) {
-    Button(
+    MessageButton(
+        text = if (!permissionsState.allPermissionsGranted) {
+            stringResource(R.string.request_permission)
+        } else {
+            stringResource(R.string.open_settings)
+        },
         onClick = {
             if (!permissionsState.allPermissionsGranted) {
                 // Always try to request permissions first
@@ -123,14 +134,9 @@ private fun RequestPermissionButton(
                 context.startActivity(intent)
             }
         }
-    ) {
-        Text(
-            text = if (!permissionsState.allPermissionsGranted) {
-                "Request Permission"
-            } else {
-                "Open Settings"
-            },
-            style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center)
-        )
-    }
+    )
+}
+
+enum class PermissionState {
+    Denied, Granted, Partial
 }

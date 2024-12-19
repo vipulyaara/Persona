@@ -9,7 +9,7 @@ import android.provider.MediaStore
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 
-object PhotoPermissionManager {
+object PhotoPermissionHelper {
     fun hasFullAccess(context: Context): Boolean {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {

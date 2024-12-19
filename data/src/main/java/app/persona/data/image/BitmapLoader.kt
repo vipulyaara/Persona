@@ -37,7 +37,6 @@ class BitmapLoader @Inject constructor(
      */
     suspend fun loadBitmap(uri: Uri): Result<Bitmap> = withContext(Dispatchers.IO) {
         runCatching {
-            // Load bitmap using version-appropriate API
             val bitmap = when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
                     ImageDecoder.createSource(context.contentResolver, uri).let { source ->
@@ -110,14 +109,6 @@ class BitmapLoader @Inject constructor(
     }
 
     companion object {
-        /**
-         * Maximum dimension for processed images (1080p).
-         * This value balances several factors:
-         * - Memory usage: Keeps images within manageable memory limits
-         * - Processing speed: Reduces ML model processing time
-         * - Detection accuracy: Maintains sufficient detail for accurate face detection
-         * - Display quality: Provides good visual quality on modern displays
-         */
         private const val MAX_DIMENSION = 1080
     }
 }

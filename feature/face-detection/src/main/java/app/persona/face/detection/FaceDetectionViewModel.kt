@@ -41,6 +41,7 @@ class FaceDetectionViewModel @Inject constructor(
 
     /**
      * Updates the name of a face and propagates the change to all matching faces.
+     * todo: fix
      */
     fun updateFaceName(face: FaceDetection, newName: String) {
         val key = "${face.boundingBox.left},${face.boundingBox.top},${face.boundingBox.right},${face.boundingBox.bottom}"
@@ -79,7 +80,11 @@ class FaceDetectionViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                startProcessing()
+                isProcessing = true
+                if (_uiState.value is Initial) {
+                    _uiState.value = Loading
+                }
+
                 collectAndProcessImages(onlyLatestSelection)
             } catch (e: Exception) {
                 handleError(e)
@@ -92,13 +97,6 @@ class FaceDetectionViewModel @Inject constructor(
     private fun resetState() {
         currentIndex = 0
         _uiState.value = Initial
-    }
-
-    private fun startProcessing() {
-        isProcessing = true
-        if (_uiState.value is Initial) {
-            _uiState.value = Loading
-        }
     }
 
     /**
@@ -139,7 +137,7 @@ class FaceDetectionViewModel @Inject constructor(
                         detections = updatedDetections,
                         aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
                     )
-                    updateUiState(processedImage, batch.hasMore)
+                    updateUiState(newImage = processedImage, hasMore = batch.hasMore)
                 }
             }
         }
@@ -162,7 +160,7 @@ class FaceDetectionViewModel @Inject constructor(
     }
 
     private fun handleError(error: Throwable) {
-        _uiState.value = GalleryUiState.Error(error)
+        _uiState.value = Error(error)
     }
 
     override fun onCleared() {
@@ -180,12 +178,15 @@ class FaceDetectionViewModel @Inject constructor(
  */
 sealed interface GalleryUiState {
     data object Initial : GalleryUiState
+
     data object Loading : GalleryUiState
+
     data class Success(
         val images: List<ProcessedImageWithBitmap>,
         val hasMore: Boolean
     ) : GalleryUiState {
         val isEmpty = images.isEmpty() && !hasMore
     }
+
     data class Error(val error: Throwable) : GalleryUiState
 }

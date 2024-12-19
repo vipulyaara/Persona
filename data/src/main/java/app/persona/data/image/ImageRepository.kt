@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore.Images.Media
-import app.persona.data.permissions.PhotoPermissionManager
+import app.persona.data.permissions.PhotoPermissionHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +36,7 @@ class ImageRepository @Inject constructor(
         startIndex: Int = 0,
         onlyLatestSelection: Boolean = false
     ): Flow<ImageBatch> = flow {
-        val queryArgs = PhotoPermissionManager.createQueryArgs(onlyLatestSelection)
+        val queryArgs = PhotoPermissionHelper.createQueryArgs(onlyLatestSelection)
 
         context.contentResolver.query(
             Media.EXTERNAL_CONTENT_URI,

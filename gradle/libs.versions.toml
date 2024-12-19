@@ -48,11 +48,14 @@ androidx-hilt-navigation = { module = "androidx.hilt:hilt-navigation", version.r
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "dagger" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
 
+leakCanary = "com.squareup.leakcanary:leakcanary-android:2.14"
+
 mediapipe-face-detection = { group = "com.google.mediapipe", name = "facedetection", version.ref = "mediapipe" }
 mediapipe-tasks-core = { group = "com.google.mediapipe", name = "tasks-core", version.ref = "tasks" }
 mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "tasks" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "googleMaterial" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

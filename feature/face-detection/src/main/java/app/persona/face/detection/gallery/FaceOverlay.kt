@@ -1,7 +1,6 @@
 package app.persona.face.detection.gallery
 
 import android.graphics.Paint
-import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -57,21 +56,23 @@ fun FaceOverlay(
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
                         // Handle click and find which face was clicked
-                        detections?.firstOrNull { face ->
-                            val scaleX = canvasSize.width.toFloat() / imageWidth
-                            val scaleY = canvasSize.height.toFloat() / imageHeight
-                            val left = face.boundingBox.left * scaleX
-                            val top = face.boundingBox.top * scaleY
-                            val width = face.boundingBox.width() * scaleX
-                            val height = face.boundingBox.height() * scaleY
-                            
-                            // Check if click is within face bounds
-                            offset.x >= left && offset.x <= left + width &&
-                            offset.y >= top && offset.y <= top + height
-                        }?.let { face ->
-                            selectedFace = face
-                            onFaceClicked(face)
-                        }
+                        detections
+                            ?.firstOrNull { face ->
+                                val scaleX = canvasSize.width.toFloat() / imageWidth
+                                val scaleY = canvasSize.height.toFloat() / imageHeight
+                                val left = face.boundingBox.left * scaleX
+                                val top = face.boundingBox.top * scaleY
+                                val width = face.boundingBox.width() * scaleX
+                                val height = face.boundingBox.height() * scaleY
+
+                                // Check if click is within face bounds
+                                offset.x >= left && offset.x <= left + width &&
+                                        offset.y >= top && offset.y <= top + height
+                            }
+                            ?.let { face ->
+                                selectedFace = face
+                                onFaceClicked(face)
+                            }
                     }
                 }
         ) {

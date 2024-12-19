@@ -42,7 +42,6 @@ fun GalleryGrid(
         items(images) { processedImage ->
             ImageWithFace(
                 bitmap = processedImage.bitmap,
-                faceCount = processedImage.faceCount,
                 aspectRatio = processedImage.aspectRatio,
                 detections = processedImage.detections,
                 onFaceNameUpdated = onFaceNameUpdated
