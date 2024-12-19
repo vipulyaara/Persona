@@ -70,5 +70,5 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
-    implementation(libs.leakCanary)
+    debugImplementation(libs.leakCanary)
 }
