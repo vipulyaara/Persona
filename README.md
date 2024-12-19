@@ -3,7 +3,7 @@
 Persona is an Android application for face detection and management, built with modern Android architecture components and Jetpack Compose.
 
 
-| Full Access | Limited Access | Denied |
+| Full Access | Limited Access | Access Denied |
 |:-----------:|:-------------:|:--------------:|
 | <video src="https://github.com/user-attachments/assets/274ec590-fab2-4bd5-874b-35feb5fec66e" width="250"/> | <video src="https://github.com/user-attachments/assets/f718188c-a513-466c-9be2-c99fa3365ffa" width="250"/> | <video src="https://github.com/user-attachments/assets/ee2a3418-43ed-49ce-a849-96028876c332" width="250"/> |
 
