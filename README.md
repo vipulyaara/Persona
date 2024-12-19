@@ -80,3 +80,37 @@ This system handles photo access permissions across different Android versions, 
 - Users can modify permissions through system settings anytime
 - Application backup is turned off in case we want to test different permission workflows by clearing data or uninstalling the app
 
+
+## How to Run
+
+### Prerequisites
+- Android Studio Arctic Fox (2023.1.1) or newer
+- JDK 17 or higher
+- Android SDK with minimum API level 24 (Android 7.0)
+- Android device or emulator running Android 7.0 or higher
+
+### Setup Instructions
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/vipulyaara/Persona.git
+   cd Persona
+   ```
+
+### Build and Run
+1. Connect your Android device or start an emulator
+2. Select your target device in Android Studio
+3. Click the "Run" button (green play icon) or press Shift + F10
+4. Wait for the app to build and install on your device
+
+### Running Tests
+- Run unit tests: `./gradlew test`
+
+### Troubleshooting
+- If you encounter Gradle sync issues:
+  1. File -> Invalidate Caches / Restart
+  2. Clean project (Build -> Clean Project)
+  3. Rebuild project (Build -> Rebuild Project)
+- Ensure you have the latest Android Studio updates
+- Check that all SDK components are installed via SDK Manager
+
+
